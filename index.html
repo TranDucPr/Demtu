@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình đếm văn bản Tiếng Việt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">Trình Phân Tích Văn Bản</h1>
+            <p class="text-slate-500">Đếm tiếng, từ, câu và ký tự một cách chính xác cho Tiếng Việt</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card bg-white p-4 rounded-xl border border-slate-200 text-center">
+                <span class="block text-sm font-medium text-slate-500 uppercase tracking-wider">Tiếng</span>
+                <span id="syllableCount" class="text-3xl font-bold text-blue-600">0</span>
+            </div>
+            <div class="stat-card bg-white p-4 rounded-xl border border-slate-200 text-center">
+                <span class="block text-sm font-medium text-slate-500 uppercase tracking-wider">Từ (ước tính)</span>
+                <span id="wordCount" class="text-3xl font-bold text-indigo-600">0</span>
+            </div>
+            <div class="stat-card bg-white p-4 rounded-xl border border-slate-200 text-center">
+                <span class="block text-sm font-medium text-slate-500 uppercase tracking-wider">Câu</span>
+                <span id="sentenceCount" class="text-3xl font-bold text-emerald-600">0</span>
+            </div>
+            <div class="stat-card bg-white p-4 rounded-xl border border-slate-200 text-center">
+                <span class="block text-sm font-medium text-slate-500 uppercase tracking-wider">Ký tự</span>
+                <span id="charCount" class="text-3xl font-bold text-amber-600">0</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+            <div class="border-b border-slate-100 p-4 flex justify-between items-center bg-slate-50">
+                <span class="text-sm font-semibold text-slate-600">Văn bản đầu vào</span>
+                <button id="clearBtn" class="text-xs bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-600 px-3 py-1.5 rounded-lg transition-colors font-medium">
+                    XÓA TẤT CẢ
+                </button>
+            </div>
+            <textarea 
+                id="textInput" 
+                class="w-full h-64 md:h-96 p-6 focus:outline-none text-slate-700 leading-relaxed resize-none text-lg"
+                placeholder="Dán văn bản của bạn vào đây để bắt đầu phân tích..."
+            ></textarea>
+        </div>
+
+        <!-- Extra Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-700 mb-3 border-b pb-2">Thông tin chi tiết</h3>
+                <ul class="space-y-2 text-sm text-slate-600">
+                    <li class="flex justify-between">
+                        <span>Ký tự (không khoảng trắng):</span>
+                        <span id="charNoSpace" class="font-mono font-bold">0</span>
+                    </li>
+                    <li class="flex justify-between">
+                        <span>Thời gian đọc (ước tính):</span>
+                        <span id="readingTime" class="font-mono font-bold">0 giây</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center">
+                 <p id="copyStatus" class="text-xs text-emerald-600 mb-2 opacity-0 transition-opacity">Đã sao chép vào bộ nhớ tạm!</p>
+                 <button id="copyBtn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-all font-medium flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    Sao chép văn bản
+                 </button>
+            </div>
+        </div>
+
+        <footer class="mt-12 text-center text-slate-400 text-xs">
+            © 2024 - Ứng dụng đếm Tiếng Việt thời gian thực
+        </footer>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const syllableCountEl = document.getElementById('syllableCount');
+        const wordCountEl = document.getElementById('wordCount');
+        const sentenceCountEl = document.getElementById('sentenceCount');
+        const charCountEl = document.getElementById('charCount');
+        const charNoSpaceEl = document.getElementById('charNoSpace');
+        const readingTimeEl = document.getElementById('readingTime');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyStatus = document.getElementById('copyStatus');
+
+        function analyzeText() {
+            const text = textInput.value;
+
+            // 1. Đếm ký tự
+            charCountEl.innerText = text.length;
+            charNoSpaceEl.innerText = text.replace(/\s/g, '').length;
+
+            // 2. Đếm Tiếng (Syllables) - Trong tiếng Việt mỗi từ đơn tách bằng khoảng trắng là 1 tiếng
+            const syllables = text.trim().split(/\s+/).filter(s => s !== '');
+            syllableCountEl.innerText = syllables.length;
+
+            // 3. Đếm Từ (Words) - Tiếng Việt phức tạp vì có từ ghép. 
+            // Công cụ này ước tính từ dựa trên thuật toán cơ bản hoặc xem "tiếng" là đơn vị cơ bản.
+            // Ở đây ta hiển thị số từ dựa trên tiếng (vì đếm từ ghép cần thư viện NLP phức tạp hơn)
+            wordCountEl.innerText = syllables.length;
+
+            // 4. Đếm Câu
+            // Tách theo dấu chấm, chấm hỏi, chấm than
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim() !== '');
+            sentenceCountEl.innerText = sentences.length;
+
+            // 5. Thời gian đọc (trung bình 200 từ/phút)
+            const words = syllables.length;
+            const seconds = Math.ceil((words / 200) * 60);
+            if (seconds < 60) {
+                readingTimeEl.innerText = seconds + ' giây';
+            } else {
+                const mins = Math.floor(seconds / 60);
+                readingTimeEl.innerText = mins + ' phút ' + (seconds % 60) + ' giây';
+            }
+        }
+
+        textInput.addEventListener('input', analyzeText);
+
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            analyzeText();
+            textInput.focus();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!textInput.value) return;
+            
+            textInput.select();
+            document.execCommand('copy');
+            
+            copyStatus.classList.remove('opacity-0');
+            setTimeout(() => {
+                copyStatus.classList.add('opacity-0');
+            }, 2000);
+        });
+
+        // Tự động focus khi load trang
+        window.onload = () => textInput.focus();
+    </script>
+</body>
+</html>
